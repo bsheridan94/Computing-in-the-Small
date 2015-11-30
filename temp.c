@@ -30,7 +30,7 @@ int resetWire()
 
     x =  strtoul(buf ,nil, 16);
 
-    if(x &  (1<<27)){
+    if(!(x &  (1<<27))){
     	print("Response Received!\n");
     	return 0;
     }
@@ -93,8 +93,8 @@ uchar readWire(){
 
 void main(){
 	int status;
-
-    uchar temp[2];
+    int i;
+    uchar temp[9];
     ushort final;
 
 	gpioFD = open("/dev/gpio",ORDWR);
@@ -118,14 +118,17 @@ void main(){
     writeWire(0x44);
     sleep(1000);
 
-    status = resetWire();
+    status = ReadWire();
     writeWire(0xCC);
     writeWire(0x44);
 
-    temp[0] = readWire();
-    print("temp[0]: %u\n", temp[0]);
-    temp[1] = readWire();
-    print("temp[1]: %u\n", temp[1]);
+
+    for(i = 0; i < 9; i++) {
+        temp[i] = readWire();
+    }
+ 
+    print("temp[0]: %02x\n", temp[0]);
+    print("temp[1]: %02x\n", temp[1]);
 
     final = temp[1] << 8 | temp[0];
 
