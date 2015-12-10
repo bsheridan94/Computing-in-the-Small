@@ -7,7 +7,7 @@ uchar readWire(void);
 
 int gpioFD;
 
-//function to reset write
+//function to write reset command
 int resetWire()
 {
     ulong x;
@@ -17,7 +17,7 @@ int resetWire()
 
     fprint(gpioFD, "function 27 out");
 
-    // wait 500 us  
+    // wait 600 us  
     time_nsec = nsec();
     time_elaps = nsec();
     while( (time_elaps - time_nsec) < 600000){
@@ -31,11 +31,9 @@ int resetWire()
         time_elaps = nsec();
     }
 
-
     read(gpioFD, buf, 16);   
     buf[8] = 0;
     x =  strtoull(buf ,nil, 16);
-
 
     if(!(x &  (1<<27))){
         //print("Response Received!\n");
@@ -47,7 +45,7 @@ int resetWire()
     }
 }
 
-
+//Writes command on wire
 void writeWire(int cmd){
     int i;
     long time_nsec;
@@ -83,7 +81,7 @@ void writeWire(int cmd){
     }
 }
 
-
+// reads response on wire
 uchar readWire(){
     ulong x;
     int i;
@@ -93,7 +91,6 @@ uchar readWire(){
     long time_elaps;
     ret = 0;
 
-    //for(i = 7; i > -1; i--){
     for(i = 0; i < 8; i++){
         time_nsec = nsec();
         time_elaps = nsec();
@@ -104,7 +101,7 @@ uchar readWire(){
         if(x & (1<<27)){
             ret |= (1 << i);
         }
-        // transactions should last u0s
+        // transactions should last 60us
         while((time_elaps - time_nsec) < 60000){
                 time_elaps = nsec();
         }
